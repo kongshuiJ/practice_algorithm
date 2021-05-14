@@ -20,23 +20,27 @@ void count_sort(int *arr, int len)
         return;
 
     int max = arr[0];
+    int min = arr[0];
     for (int index = 0; index < len; ++index)
     {
         if (max < arr[index])
             max = arr[index];
+
+        if (min > arr[index])
+            min = arr[index];
     }
 
-    int new_arr_size = max + 1;
+    int new_arr_size = max - min + 1;
     std::shared_ptr<int> tmp(new int[new_arr_size], std::default_delete<int[]>());
 
     for (int index = 0; index < len; ++index)
-        tmp.get()[arr[index]] += 1;
+        tmp.get()[arr[index] - min] += 1;
 
     int arr_index = 0;
     for (int index = 0; index < new_arr_size; ++index)
     {
         for (int idx = 0; idx < tmp.get()[index]; ++idx)
-            arr[arr_index++] = index;
+            arr[arr_index++] = (index + min);
     }
 }
 
