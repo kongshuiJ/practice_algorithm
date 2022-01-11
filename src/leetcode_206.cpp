@@ -17,33 +17,37 @@ struct ListNode
     {}
 };
 
-ListNode *successor = nullptr;
-
-// Reverse the first N nodes of the linked list
-ListNode *reverseFirstN(ListNode *head, int n)
+ListNode *reverseListByIterate(ListNode *head)
 {
-    if (n == 1)
-    {
-        successor = head->next;
+    if (head == nullptr || head->next == nullptr)
         return head;
+
+    ListNode *cur = head;
+    ListNode *pre = nullptr;
+    ListNode *next = nullptr;
+
+    while (cur != nullptr)
+    {
+        next = cur->next;
+        cur->next = pre;
+        pre = cur;
+        cur = next;
     }
-    ListNode *last = reverseFirstN(head->next, n - 1);
 
-    head->next->next = head;
-    head->next = successor;
-
-    return last;
+    return pre;
 }
 
-ListNode *reverseBetween(ListNode *head, int m, int n)
+ListNode *reverseListByRecursion(ListNode *head)
 {
-    if (m == 1)
-    {
-        return reverseFirstN(head, n);
-    }
+    if (head == nullptr || head->next == nullptr)
+        return head;
 
-    head->next = reverseBetween(head->next, m - 1, n - 1);
-    return head;
+    ListNode *last = reverseListByRecursion(head->next);
+
+    head->next->next = head;
+    head->next = nullptr;
+
+    return last;
 }
 
 int main()
@@ -53,22 +57,21 @@ int main()
     ListNode *node = head;
 
     // it is real list
-    printf("%3d ", node->val);
     for (int idx = 0; idx < 10; ++idx)
     {
         node->next = new ListNode(rand() % 100);
-        printf("%3d ", node->next->val);
+        printf(" %d ", node->next->val);
 
         node = node->next;
     }
     printf("\n");
 //    node->next = head;
 
-    node = reverseBetween(head, 3, 5);
+    node = reverseListByRecursion(head);
 
     while (node != nullptr)
     {
-        printf("%3d ", node->val);
+        printf("%d ", node->val);
         node = node->next;
     }
     printf("\n");

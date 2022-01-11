@@ -17,33 +17,41 @@ struct ListNode
     {}
 };
 
-ListNode *successor = nullptr;
-
-// Reverse the first N nodes of the linked list
-ListNode *reverseFirstN(ListNode *head, int n)
+ListNode *reverse(ListNode *a, ListNode *b)
 {
-    if (n == 1)
+    ListNode *pre = nullptr;
+    ListNode *cur = a;
+    ListNode *nxt = a;
+
+    while (cur != b)
     {
-        successor = head->next;
-        return head;
+        nxt = cur->next;
+        cur->next = pre;
+        pre = cur;
+        cur = nxt;
     }
-    ListNode *last = reverseFirstN(head->next, n - 1);
 
-    head->next->next = head;
-    head->next = successor;
-
-    return last;
+    return pre;
 }
 
-ListNode *reverseBetween(ListNode *head, int m, int n)
+ListNode *reverseKGroup(ListNode *head, int k)
 {
-    if (m == 1)
+    if (head == nullptr || head->next == nullptr)
+        return head;
+
+    ListNode *a = head;
+    ListNode *b = head;
+
+    for (int idx = 0; idx < k; ++idx)
     {
-        return reverseFirstN(head, n);
+        if (b == nullptr) return head;
+        b = b->next;
     }
 
-    head->next = reverseBetween(head->next, m - 1, n - 1);
-    return head;
+    ListNode *newHead = reverse(a, b);
+    a->next = reverseKGroup(b, k);
+
+    return newHead;
 }
 
 int main()
@@ -64,7 +72,7 @@ int main()
     printf("\n");
 //    node->next = head;
 
-    node = reverseBetween(head, 3, 5);
+    node = reverseKGroup(head, 11);
 
     while (node != nullptr)
     {
