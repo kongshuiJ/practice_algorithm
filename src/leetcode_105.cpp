@@ -1,96 +1,75 @@
 #include <iostream>
+#include <vector>
 
-using namespace std;
-
-struct node
+struct treeNode
 {
-    // 数据域
-    int data;
+    int key;
+    treeNode *next;
+    treeNode *lchild;
+    treeNode *rchild;
 
-    // 左节点
-    node *lc;
-
-    // 右结点
-    node *rc;
-
-    // 构造函数
-    node() : data(0), lc(NULL), rc(NULL)
-    {}
-
-    node(int val) : data(val), lc(NULL), rc(NULL)
-    {}
+    treeNode(int tempKey)
+    {
+        key = tempKey;
+        next = nullptr;
+        lchild = nullptr;
+        rchild = nullptr;
+    }
 };
 
-node *constructCore(int *pre, int pre_size, int *in, int in_size)
+treeNode *build(int *preorder, int pre_start, int pre_end,
+                int *inorder, int in_start, int in_end)
 {
-    if (pre_size != in_size || pre_size < 1)
+    if (pre_start > pre_end)
         return nullptr;
 
-    if (pre_size == 1)
-        return new node(pre[0]);
-
-    int root_node_idx = -1;
-
-    // Find root node
-    for (int idx = 0; idx < in_size; ++idx)
+    int root_val = preorder[pre_start];
+    int index = 0;
+    for (int idx = in_start; idx <= in_end; ++idx)
     {
-        if (in[idx] == pre[0])
+        if (inorder[idx] == root_val)
         {
-            root_node_idx = idx;
+            index = idx;
             break;
         }
     }
 
-    if (root_node_idx == -1)
-        return nullptr;
+    treeNode *root = new treeNode(root_val);
 
-    node *head = new node(pre[0]);
-    int *lchild_prev = new int[root_node_idx];
-    for (int idx = 0; idx < root_node_idx; ++idx)
-        lchild_prev[idx] = pre[1 + idx];
+    int left_size = index - in_start;
 
-    int *lchild_in = new int[root_node_idx];
-    for (int idx = 0; idx < root_node_idx; ++idx)
-        lchild_in[idx] = in[idx];
+    root->lchild = build(preorder, pre_start + 1, pre_start + left_size,
+                         inorder, in_start, index - 1);
 
-    head->lc = constructCore(lchild_prev, root_node_idx, lchild_in, root_node_idx);
-
-    int rlen = in_size - 1 - root_node_idx;
-    int *rchild_prev = new int[rlen];
-    for (int idx = 0; idx < rlen; ++idx)
-        rchild_prev[idx] = pre[root_node_idx + 1 + idx];
-
-    int *rchild_in = new int[rlen];
-    for (int idx = 0; idx < rlen; ++idx)
-        rchild_in[idx] = in[root_node_idx + 1 + idx];
-
-    head->rc = constructCore(rchild_prev, rlen, rchild_in, rlen);
-
-    return head;
+    root->rchild = build(preorder, pre_start + left_size + 1, pre_end,
+                         inorder, index + 1, in_end);
 }
 
-void printTree(node *head)
+treeNode *buildTree(int *preorder, int pre_len, int *inorder, int in_len)
 {
-    if (head == nullptr)
-        return;
-
-    printTree(head->lc);
-    printTree(head->rc);
-    printf(" %d ", head->data);
+    return build(preorder, 0, pre_len - 1, inorder, 0, in_len - 1);
 }
 
-// 测试代码
+void rotatePrint(treeNode *tempNode, int tempColumn)
+{
+    if (nullptr == tempNode)
+        return;
+    rotatePrint(tempNode->lchild, tempColumn + 1);
+    for (int i = 0; i < tempColumn; i++)
+        std::cout << "    ";
+    std::cout << "---" << tempNode->key << std::endl;
+    rotatePrint(tempNode->rchild, tempColumn + 1);
+}
+
+
 int main()
 {
-//    int prev[] = {50, 30, 10, 0, 20, 40, 70, 60, 90, 80, 100};
-//    int in[] = {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100};
-//    node *head = constructCore(prev, 11, in, 11);
+    int preorder[] = {1, 2, 5, 4, 6, 7, 3, 8, 9};
+    int inorder[] = {5, 2, 6, 4, 7, 1, 8, 3, 9};
 
-    int prev[] = {1, 2, 4, 7, 3, 5, 6, 8};
-    int in[] = {4, 7, 2, 1, 5, 3, 8, 6};
-    node *head = constructCore(prev, 8, in, 8);
+    treeNode *root = buildTree(preorder, 9, inorder, 9);
 
-    printTree(head);
+    rotatePrint(root, 0);
 
     return 0;
 }

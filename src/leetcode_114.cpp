@@ -1,93 +1,78 @@
-//
-// Created by kongshui on 5/17/21.
-//
-
-/*
- * 给你二叉树的根结点 root ，请你将它展开为一个单链表：
- * 展开后的单链表应该同样使用 TreeNode ，其中 right 子指针指向链表中下一个结点，而左子指针始终为 null 。
- * 展开后的单链表应该与二叉树 先序遍历 顺序相同。
- *
- * 提示：
- * 树中结点数在范围 [0, 2000] 内
- * -100 <= TreeNode.val <= 100
- *
- * 进阶：你可以使用原地算法（O(1) 额外空间）展开这棵树吗？
- *
- * 示例 1：
- * 输入：root = [1,2,5,3,4,null,6]
- * 输出：[1,null,2,null,3,null,4,null,5,null,6]
- * 示例 2：
- * 输入：root = []
- * 输出：[]
- * 示例 3：
- * 输入：root = [0]
- * 输出：[0]
- */
-
 #include <iostream>
+#include <vector>
 
-struct TreeNode
+struct treeNode
 {
-    int         val;
-    TreeNode    *left;
-    TreeNode    *right;
+    int key;
+    treeNode *next;
+    treeNode *lchild;
+    treeNode *rchild;
 
-    TreeNode() : val(0), left(nullptr), right(nullptr)
-    {}
-
-    TreeNode(int x) : val(x), left(nullptr), right(nullptr)
-    {}
-
-    TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right)
-    {}
-};
-
-class Solution
-{
-public:
-    void flatten(TreeNode *root)
+    treeNode(int tempKey)
     {
-        if (root == nullptr)
-            return;
-
-        // 后序
-        flatten(root->left);
-        flatten(root->right);
-
-        if(root->left != nullptr)
-        {
-            TreeNode *left  = root->left;
-
-            TreeNode *cur = left;
-            while (cur->right)
-                cur = cur->right;
-
-            cur->right  = root->right;
-            root->left  = nullptr;
-            root->right = left;
-        }
+        key = tempKey;
+        next = nullptr;
+        lchild = nullptr;
+        rchild = nullptr;
     }
 };
 
+void flatten(treeNode *root)
+{
+    if (root == nullptr)
+        return;
+
+    flatten(root->lchild);
+    flatten(root->rchild);
+
+    treeNode *left = root->lchild;
+    treeNode *right = root->rchild;
+
+    root->lchild = nullptr;
+    root->rchild = left;
+
+    treeNode *tmp = root;
+    while (tmp->rchild != nullptr)
+        tmp = tmp->rchild;
+
+    tmp->rchild = right;
+}
+
+void rotatePrint(treeNode *tempNode, int tempColumn)
+{
+    if (nullptr == tempNode)
+        return;
+    rotatePrint(tempNode->lchild, tempColumn + 1);
+    for (int i = 0; i < tempColumn; i++)
+        std::cout << "    ";
+    std::cout << "---" << tempNode->key << std::endl;
+    rotatePrint(tempNode->rchild, tempColumn + 1);
+}
+
+
 int main()
 {
-    TreeNode node1(1);
-    TreeNode node2(2);
-    TreeNode node3(3);
-    TreeNode node4(4);
-    TreeNode node5(5);
-    TreeNode node6(6);
+    treeNode *root = new treeNode(0);
+    treeNode *cur1 = new treeNode(1);
+    treeNode *cur2 = new treeNode(2);
+    treeNode *cur3 = new treeNode(3);
+    treeNode *cur4 = new treeNode(4);
+    treeNode *cur5 = new treeNode(5);
+    treeNode *cur6 = new treeNode(6);
 
-    node1.left   = &node2;
-    node1.right  = &node5;
+    root->lchild = cur1;
+    root->rchild = cur2;
 
-    node2.left   = &node3;
-    node2.right  = &node4;
+    cur1->lchild = cur3;
+    cur1->rchild = cur4;
 
-    node5.right  = &node6;
+    cur2->lchild = cur5;
+    cur2->rchild = cur6;
 
-    Solution tmp;
-    tmp.flatten(&node1);
+    rotatePrint(root, 0);
+    flatten(root);
+    printf("================\n");
+    rotatePrint(root, 0);
 
     return 0;
 }

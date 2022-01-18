@@ -1,75 +1,65 @@
-//
-// Created by kongshui on 5/18/21.
-//
-
-/**
- * 给定一个不含重复元素的整数数组 nums 。一个以此数组直接递归构建的 最大二叉树 定义如下：
- * 二叉树的根是数组 nums 中的最大元素。
- * 左子树是通过数组中 最大值左边部分 递归构造出的最大二叉树。
- * 右子树是通过数组中 最大值右边部分 递归构造出的最大二叉树。
- * 返回有给定数组 nums 构建的 最大二叉树 。
- */
-
 #include <iostream>
 #include <vector>
-#include <atomic>
-#include <memory>
-#include <typeinfo>
 
-struct TreeNode
+struct treeNode
 {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
+    int key;
+    treeNode *next;
+    treeNode *lchild;
+    treeNode *rchild;
 
-    TreeNode() : val(0), left(nullptr), right(nullptr)
-    {}
-
-    TreeNode(int x) : val(x), left(nullptr), right(nullptr)
-    {}
-
-    TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right)
-    {}
-};
-
-class Solution
-{
-public:
-    TreeNode *constructMaximumBinaryTree(std::vector<int> &nums)
+    treeNode(int tempKey)
     {
-        if (nums.empty())
-            return nullptr;
-
-        int max_val     = nums[0];
-        int max_val_idx = 0;
-
-        for (int index = 0; index < nums.size(); ++index)
-        {
-            if(nums[index] >max_val)
-            {
-                max_val     = nums[index];
-                max_val_idx = index;
-            }
-        }
-
-        TreeNode *node = new TreeNode(max_val);
-
-        std::vector<int> left_vecl(std::vector<int>(nums.begin(), nums.begin() + max_val_idx));
-        std::vector<int> right_vec(std::vector<int>(nums.begin() + max_val_idx, nums.end()));
-
-        node->left  = constructMaximumBinaryTree(left_vec);
-        node->right = constructMaximumBinaryTree(right_vec);
-
-        return node;
+        key = tempKey;
+        next = nullptr;
+        lchild = nullptr;
+        rchild = nullptr;
     }
 };
 
+treeNode *constructMaximumBinaryTree(int *nums, int len)
+{
+    if (len <= 0)
+        return nullptr;
+    int max_idx = 0;
+    int max_val = nums[0];
+
+    for (int idx = 1; idx < len; ++idx)
+    {
+        if (nums[idx] > max_val)
+        {
+            max_idx = idx;
+            max_val = nums[idx];
+        }
+    }
+
+    treeNode *root = new treeNode(max_val);
+
+    root->lchild = constructMaximumBinaryTree(nums, max_idx);
+    root->rchild = constructMaximumBinaryTree(nums + max_idx + 1, len - max_idx - 1);
+
+    return root;
+}
+
+void rotatePrint(treeNode *tempNode, int tempColumn)
+{
+    if (nullptr == tempNode)
+        return;
+    rotatePrint(tempNode->lchild, tempColumn + 1);
+    for (int i = 0; i < tempColumn; i++)
+        std::cout << "    ";
+    std::cout << "---" << tempNode->key << std::endl;
+    rotatePrint(tempNode->rchild, tempColumn + 1);
+}
+
+
 int main()
 {
-    Solution tmp;
-    std::vector<int> input{3,2,1,6,0,5};
+    int nums[] = {3, 2, 1, 6, 0, 5};
 
-    auto result = tmp.constructMaximumBinaryTree(input);
+    treeNode *root = constructMaximumBinaryTree(nums, sizeof(nums) / sizeof(int));
+
+    rotatePrint(root, 0);
 
     return 0;
 }
