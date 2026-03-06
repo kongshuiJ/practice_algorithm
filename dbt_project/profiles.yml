@@ -9,4 +9,5 @@ demo_project:
       port: 5439
       dbname: dev
       schema: demo
+      user: admin
       threads: 2
