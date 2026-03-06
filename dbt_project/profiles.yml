@@ -1,0 +1,12 @@
+demo_project:
+  target: dev
+  outputs:
+    dev:
+      type: redshift
+      method: iam
+      cluster_type: serverless
+      host: robot-domo-wg.975050069756.us-east-1.redshift-serverless.amazonaws.com
+      port: 5439
+      dbname: dev
+      schema: demo
+      threads: 2
